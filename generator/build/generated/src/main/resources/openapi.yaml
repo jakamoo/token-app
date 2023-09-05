@@ -1,0 +1,118 @@
+openapi: 3.0.1
+info:
+  title: Token Generation API
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /generateToken:
+    post:
+      description: Generates a token with given available digits.
+      operationId: generateToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                type: integer
+              type: array
+        description: Token to be generated
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: Generated token
+        "401":
+          description: Authentication information is missing or invalid
+          headers:
+            WWW_Authenticate:
+              explode: false
+              schema:
+                type: string
+              style: simple
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified resource was not found
+      summary: Generate a token.
+      tags:
+      - generateToken
+components:
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      headers:
+        WWW_Authenticate:
+          explode: false
+          schema:
+            type: string
+          style: simple
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Forbidden
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: The specified resource was not found
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Bad request
+  schemas:
+    Token:
+      example:
+        token: 1234-5678-9012-3456
+      properties:
+        token:
+          example: 1234-5678-9012-3456
+          type: string
+      type: object
+    ValidationResult:
+      properties:
+        isValid:
+          example: true
+          type: boolean
+      type: object
+    Error:
+      properties:
+        fault:
+          $ref: '#/components/schemas/FaultDefinition'
+      required:
+      - fault
+      type: object
+    FaultDefinition:
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        errors:
+          items:
+            type: integer
+          type: array
+      required:
+      - code
+      - description
+      - message

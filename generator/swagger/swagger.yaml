@@ -1,0 +1,104 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Token Generation API
+
+paths:
+  /generateToken:
+    post:
+      summary: Generate a token.
+      description: Generates a token with given available digits.
+      requestBody:
+        description: Token to be generated
+        required: true
+        content:
+          application/json:
+                schema:
+                  type: array
+                  items:
+                    type: integer
+      tags:
+        - generateToken
+      operationId: generateToken
+      responses:
+        '200':
+          description: Generated token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "1234-5678-9012-3456"
+    ValidationResult:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+          example: true
+    Error:
+      required:
+        - fault
+      type: object
+      properties:
+        fault:
+          $ref: '#/components/schemas/FaultDefinition'
+    FaultDefinition:
+      required:
+        - code
+        - description
+        - message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        errors:
+          type: array
+          items:
+            type: integer
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      headers:
+        WWW_Authenticate:
+          style: simple
+          explode: false
+          schema:
+            type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+
+
